@@ -16,21 +16,22 @@ This addon **adds expressions as shape keys** to the model using data from these
 - Use `Edit > Preferences... > Add-ons > Install...` to select the ZIP file and enable the addon.
 
 ### 2) Addon Usage
-- **a. Import Character Model**  
-  Typically located in:  
-  `assets\veyron\external\assetbundleresources\character\model\chr\base\`
+#### **a. Import Character Model**  
+Typically located in:  
+`assets\veyron\external\assetbundleresources\character\model\chr\base\`
 
-- **b. Apply Expressions to Character**  
-  - **b.1** In the 3D Viewport, select:  
-    `Object > Apply BlendShapes from JSON`  
-    ![](image\Step1_en.png)  
-  - **b.2** Select the expression JSON file corresponding to the model  
-    (Usually in the same directory as the model file):  
-    ![](image\Step2_en.png)  
-  - **b.3** Verify shape keys are properly added:  
-    ![](image\Step3_en.png)  
+#### **b. Apply Expressions to Character**  
 
-- **c. Important Notes**  
+1. In the 3D Viewport, select:  
+   `Object > Apply BlendShapes from JSON`  
+   ![](./image/Step1_en.png)
+2. Select the expression JSON file corresponding to the model  
+ (Usually in the same directory as the model file):  
+   ![](./image/Step2_en.png)  
+3. Verify shape keys are properly added:  
+   ![](./image/Step3_en.png)  
+
+#### **c. Important Notes**  
   - **c.1** Adjust the `Global Scale Factor` during import if needed (default recommended).  
   - **c.2** Duplicate shape keys will be overwritten if re-imported.  
   - **c.3** Using JSON files from other models may cause errors due to vertex mismatches.  
