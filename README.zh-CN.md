@@ -53,3 +53,8 @@
 
 游戏已停止运营，官方网站：  
 [https://www.jp.square-enix.com/engage-kill/](https://www.jp.square-enix.com/engage-kill/)
+
+**dependencies**
+
+[CGCookie]: https://github.com/CGCookie/blender-addon-updater/tree/v1.1.1	"blender-addon-update"
+

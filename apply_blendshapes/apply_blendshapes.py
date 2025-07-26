@@ -1,59 +1,13 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
-
-bl_info = {
-    "name": "Apply BlendShapes From JSON",
-    "author": "Bilibili 凡人就行",
-    "version": (1, 1, 0),
-    "blender": (3, 0, 0),
-    "location": "Object > Apply BlendShapes From JSON",
-    "description": "Apply Unity-style JSON blendshapes with multi-language support.",
-    "category": "Object"
-}
-
 import bpy
 import json
 from bpy.props import StringProperty, FloatProperty
 from bpy_extras.io_utils import ImportHelper
 from mathutils import Vector
 
-# 🔑 多语言字典
-translation_dict = {
-    "en_US": {
-        ("*", "Apply BlendShapes From JSON"): "Apply BlendShapes From JSON",
-        ("*", "Apply JSON BlendShapes to selected mesh."): "Apply JSON BlendShapes to selected mesh.",
-        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "Apply Unity-style JSON blendshapes with multi-language support.",
-        ("*", "Global Scale Factor"): "Global Scale Factor",
-        ("*", "Overall scale for vertex positions"): "Overall scale for vertex positions",
-    },
-    "zh_CN": {
-        ("*", "Apply BlendShapes From JSON"): "从JSON应用表情形态",
-        ("*", "Apply JSON BlendShapes to selected mesh."): "将JSON表情形态应用到选中网格",
-        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支持多语言的Unity风格JSON表情形态导入",
-        ("*", "Global Scale Factor"): "全局缩放系数",
-        ("*", "Overall scale for vertex positions"): "用于顶点位置的整体缩放",
-    },
-    "zh_TW": {
-        ("*", "Apply BlendShapes From JSON"): "從JSON套用表情形態",
-        ("*", "Apply JSON BlendShapes to selected mesh."): "將JSON表情形態套用到選取的網格",
-        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支援多語言的Unity風格JSON表情形態導入",
-        ("*", "Global Scale Factor"): "全域縮放係數",
-        ("*", "Overall scale for vertex positions"): "用於頂點位置的整體縮放",
-    },
-    "ja_JP": {
-        ("*", "Apply BlendShapes From JSON"): "JSONからブレンドシェイプを適用",
-        ("*", "Apply JSON BlendShapes to selected mesh."): "選択したメッシュにJSONのブレンドシェイプを適用します",
-        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "多言語対応のUnityスタイルJSONブレンドシェイプを適用",
-        ("*", "Global Scale Factor"): "全体スケール係数",
-        ("*", "Overall scale for vertex positions"): "頂点位置の全体スケール",
-    },
-}
-
-
-class ApplyBlendshapesOperator(bpy.types.Operator, ImportHelper):
+class ApplyBlendshapes(bpy.types.Operator, ImportHelper):
     bl_idname = "object.apply_blendshapes"
     bl_label = bpy.app.translations.pgettext("Apply BlendShapes From JSON")
     bl_description = bpy.app.translations.pgettext("Apply JSON BlendShapes to selected mesh.")
-
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = ".json"
@@ -71,7 +25,7 @@ class ApplyBlendshapesOperator(bpy.types.Operator, ImportHelper):
         return {'FINISHED'}
 
     def apply_blendshapes(self, json_path, scale_factor):
-        with open(json_path, 'r') as f:
+        with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         def convert_coordinates(vec_dict, is_normal=False):
@@ -123,9 +77,7 @@ class ApplyBlendshapesOperator(bpy.types.Operator, ImportHelper):
 
                 if shape_name == "Basis" and 'deltaNormals' in shape_data:
                     delta_normals = shape_data['deltaNormals']
-                    normals = []
-                    for normal in delta_normals:
-                        normals.append(convert_coordinates(normal, is_normal=True))
+                    normals = [convert_coordinates(n, is_normal=True) for n in delta_normals]
 
                     mesh.create_normals_split()
                     mesh.normals_split_custom_set_from_vertices(normals)
@@ -144,20 +96,4 @@ class ApplyBlendshapesOperator(bpy.types.Operator, ImportHelper):
 
 def menu_func(self, context):
     label = bpy.app.translations.pgettext("Apply BlendShapes From JSON")
-    self.layout.operator(ApplyBlendshapesOperator.bl_idname, text=label)
-
-
-def register():
-    bpy.utils.register_class(ApplyBlendshapesOperator)
-    bpy.app.translations.register(__name__, translation_dict)
-    bpy.types.VIEW3D_MT_object.append(menu_func)
-
-
-def unregister():
-    bpy.utils.unregister_class(ApplyBlendshapesOperator)
-    bpy.app.translations.unregister(__name__)
-    bpy.types.VIEW3D_MT_object.remove(menu_func)
-
-
-if __name__ == "__main__":
-    register()
+    self.layout.operator(ApplyBlendshapes.bl_idname, text=label)

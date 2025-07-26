@@ -43,3 +43,8 @@ Typically located in:
 - Special thanks to **UnityPy community** and **QQ user "Ran Wang Yi"** for technical guidance.  
 - **Engage Kill** is copyrighted by `SQUARE ENIX CO., LTD. (株式会社スクウェア・エニックス)`.  
 - **Game service has terminated.** Official website: https://www.jp.square-enix.com/engage-kill/
+
+- dependencies
+
+[CGCookie]: https://github.com/CGCookie/blender-addon-updater/tree/v1.1.1	"blender-addon-update"
+

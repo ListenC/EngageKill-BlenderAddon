@@ -1,0 +1,38 @@
+translation_dict = {
+    "en_US": {
+        ("*", "Apply BlendShapes From JSON"): "Apply BlendShapes From JSON",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "Apply JSON BlendShapes to selected mesh.",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "Apply Unity-style JSON blendshapes with multi-language support.",
+        ("*", "Global Scale Factor"): "Global Scale Factor",
+        ("*", "Overall scale for vertex positions"): "Overall scale for vertex positions",
+        ("*", "Object > Apply BlendShapes From JSON"): "Object > Apply BlendShapes From JSON",
+        ("*", "Object"): "Object",
+    },
+    "zh_CN": {
+        ("*", "Apply BlendShapes From JSON"): "从JSON应用表情形态",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "将JSON表情形态应用到选中网格",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支持多语言的Unity风格JSON表情形态导入",
+        ("*", "Global Scale Factor"): "全局缩放系数",
+        ("*", "Overall scale for vertex positions"): "用于顶点位置的整体缩放",
+        ("*", "Object > Apply BlendShapes From JSON"): "物体 > 从JSON应用表情形态",
+        ("*", "Object"): "物体",
+    },
+    "zh_TW": {
+        ("*", "Apply BlendShapes From JSON"): "從JSON套用表情形態",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "將JSON表情形態套用到選取的網格",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支援多語言的Unity風格JSON表情形態導入",
+        ("*", "Global Scale Factor"): "全域縮放係數",
+        ("*", "Overall scale for vertex positions"): "用於頂點位置的整體縮放",
+        ("*", "Object > Apply BlendShapes From JSON"): "物件 > 從JSON套用表情形態",
+        ("*", "Object"): "物件",
+    },
+    "ja_JP": {
+        ("*", "Apply BlendShapes From JSON"): "JSONからブレンドシェイプを適用",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "選択したメッシュにJSONのブレンドシェイプを適用します",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "多言語対応のUnityスタイルJSONブレンドシェイプを適用",
+        ("*", "Global Scale Factor"): "全体スケール係数",
+        ("*", "Overall scale for vertex positions"): "頂点位置の全体スケール",
+        ("*", "Object > Apply BlendShapes From JSON"): "オブジェクト > JSONからブレンドシェイプを適用",
+        ("*", "Object"): "オブジェクト",
+    },
+}
