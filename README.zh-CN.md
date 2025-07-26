@@ -56,5 +56,5 @@
 
 **dependencies**
 
-[CGCookie]: https://github.com/CGCookie/blender-addon-updater/tree/v1.1.1	"blender-addon-update"
+blender-addon-update	https://github.com/CGCookie/blender-addon-updater/tree/v1.1.1
 
