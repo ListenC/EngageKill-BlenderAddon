@@ -35,4 +35,22 @@ translation_dict = {
         ("*", "Object > Apply BlendShapes From JSON"): "オブジェクト > JSONからブレンドシェイプを適用",
         ("*", "Object"): "オブジェクト",
     },
+    "zh_Hans": {
+        ("*", "Apply BlendShapes From JSON"): "从JSON应用表情形态",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "将JSON表情形态应用到选中网格",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支持多语言的Unity风格JSON表情形态导入",
+        ("*", "Global Scale Factor"): "全局缩放系数",
+        ("*", "Overall scale for vertex positions"): "用于顶点位置的整体缩放",
+        ("*", "Object > Apply BlendShapes From JSON"): "物体 > 从JSON应用表情形态",
+        ("*", "Object"): "物体",
+    },
+    "zh_Hant": {
+        ("*", "Apply BlendShapes From JSON"): "從JSON套用表情形態",
+        ("*", "Apply JSON BlendShapes to selected mesh."): "將JSON表情形態套用到選取的網格",
+        ("*", "Apply Unity-style JSON blendshapes with multi-language support."): "支援多語言的Unity風格JSON表情形態導入",
+        ("*", "Global Scale Factor"): "全域縮放係數",
+        ("*", "Overall scale for vertex positions"): "用於頂點位置的整體縮放",
+        ("*", "Object > Apply BlendShapes From JSON"): "物件 > 從JSON套用表情形態",
+        ("*", "Object"): "物件",
+    },
 }
