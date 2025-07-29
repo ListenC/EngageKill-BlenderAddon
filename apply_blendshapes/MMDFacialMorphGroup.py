@@ -1,6 +1,8 @@
 import bpy
 import json
 
+major, minor, _ = bpy.app.version
+
 
 class MMDFacialMorphGroup(bpy.types.Operator):
     bl_idname = "object.mmd_facial_morph_group"
@@ -10,11 +12,12 @@ class MMDFacialMorphGroup(bpy.types.Operator):
 
     filepath: bpy.props.StringProperty(subtype="FILE_PATH")
 
-    convert_to_vertex_morph: bpy.props.BoolProperty(
-        name=bpy.app.translations.pgettext("Convert to Vertex Morph"),
-        description=bpy.app.translations.pgettext("Convert group morphs to vertex morphs after creation."),
-        default=False,
-    )
+    if (major, minor) >= (4, 0):
+        convert_to_vertex_morph: bpy.props.BoolProperty(
+            name=bpy.app.translations.pgettext("Convert to Vertex Morph"),
+            description=bpy.app.translations.pgettext("Convert group morphs to vertex morphs after creation."),
+            default=False,
+        )
 
     def execute(self, context):
         obj = context.object
@@ -98,8 +101,11 @@ class MMDFacialMorphGroup(bpy.types.Operator):
                 item.factor = 1.0
                 added_count += 1
 
-            if self.convert_to_vertex_morph:
-                bpy.ops.mmd_tools.convert_group_morph_to_vertex_morph()
+            if (major, minor) >= (4, 0):
+                if self.convert_to_vertex_morph:
+                    active_obj.active_morph = active_obj.group_morphs.find(group_name)
+                    bpy.ops.mmd_tools.convert_group_morph_to_vertex_morph()
+                    bpy.ops.mmd_tools.morph_move(type='BOTTOM')
 
         self.report({'INFO'}, bpy.app.translations.pgettext("✅ 已添加 {count} 项 Morph 到 Group Morph 中").format(count=added_count))
         return {'FINISHED'}
