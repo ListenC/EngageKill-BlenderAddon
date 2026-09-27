@@ -3,7 +3,7 @@
 bl_info = {
     "name": "apply_blendshapes",
     "author": "bilibili 凡人就行",
-    "version": (1, 4, 1),
+    "version": (1, 4, 2),
     "blender": (3, 0, 0),
     "location": "Object > Apply BlendShapes From JSON",
     "description": "Apply Unity-style JSON blendshapes with multi-language support.",
