@@ -38,9 +38,52 @@ if (-not (Test-Path $license)) {
 Write-Host "Copying LICENSE into $folder..."
 Copy-Item $license -Destination $folder -Force
 
-# Create ZIP
+# Create ZIP.
+# Compress-Archive must not be used here: on Windows PowerShell 5.1 it writes no
+# folder entries at all, so a package that contains subdirectories (cache/,
+# presets/) makes the add-on updater's extraction fail with a missing-directory
+# error. Folders are written explicitly instead, parents before their contents,
+# so even updater builds that only mkdir on trailing-slash entries can install it.
 Write-Host "Creating archive: $zipName ..."
-Compress-Archive -Path $folder -DestinationPath $zipName -Force
+
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+function Add-TreeToZip {
+    param(
+        [System.IO.Compression.ZipArchive]$Zip,
+        [string]$Dir,
+        [string]$Prefix
+    )
+    foreach ($sub in Get-ChildItem -LiteralPath $Dir -Directory | Sort-Object Name) {
+        if ($sub.Name -eq "__pycache__") { continue }
+        $Zip.CreateEntry("$Prefix/$($sub.Name)/") | Out-Null
+        Add-TreeToZip -Zip $Zip -Dir $sub.FullName -Prefix "$Prefix/$($sub.Name)"
+    }
+    foreach ($file in Get-ChildItem -LiteralPath $Dir -File | Sort-Object Name) {
+        $entry = $Zip.CreateEntry("$Prefix/$($file.Name)")
+        $target = $entry.Open()
+        $source = [System.IO.File]::OpenRead($file.FullName)
+        try { $source.CopyTo($target) } finally {
+            $source.Dispose()
+            $target.Dispose()
+        }
+    }
+}
+
+$zipPath = Join-Path (Get-Location).Path $zipName
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+
+$zipStream = [System.IO.File]::Open($zipPath, [System.IO.FileMode]::CreateNew)
+$zip = New-Object System.IO.Compression.ZipArchive(
+    $zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+    $zip.CreateEntry("$folder/") | Out-Null
+    Add-TreeToZip -Zip $zip -Dir (Resolve-Path $folder).Path -Prefix $folder
+} finally {
+    $zip.Dispose()
+    $zipStream.Dispose()
+}
 
 if (Test-Path $zipName) {
     Write-Host "Archive created successfully."
