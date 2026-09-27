@@ -941,11 +941,18 @@ class SingletonUpdater:
                             self.print_trace()
                             return -1
                 else:
-                    with open(os.path.join(outdir, sub_path), "wb") as outfile:
+                    dest = os.path.join(outdir, sub_path)
+                    # Not every zipper writes folder entries into the archive
+                    # (Windows' Compress-Archive does not), so a file's own
+                    # folder has to be made on the way in rather than trusted
+                    # to have been extracted before it.
+                    parent = os.path.dirname(dest)
+                    if not os.path.isdir(parent):
+                        os.makedirs(parent)
+                    with open(dest, "wb") as outfile:
                         data = zfile.read(name)
                         outfile.write(data)
-                        self.print_verbose(
-                            "Extract - create: " + os.path.join(outdir, sub_path))
+                        self.print_verbose("Extract - create: " + dest)
 
         self.print_verbose("Extracted source")
 
@@ -1029,7 +1036,7 @@ class SingletonUpdater:
                     self.print_verbose(
                         "Clean removing file {}".format(os.path.join(base, f)))
                 for f in folders:
-                    if os.path.join(base, f) is self._updater_path:
+                    if os.path.join(base, f) == self._updater_path:
                         continue
                     shutil.rmtree(os.path.join(base, f))
                     self.print_verbose(
