@@ -477,17 +477,95 @@ def drop_outline(obj):
             bpy.data.materials.remove(mat)
 
 
-def add_outline(obj, sh, thickness):
+def outline_depth_ratio(obj):
+    """Distance to the object's bounds centre over distance to its origin.
+
+    ``blender_char.set_outline`` measures its rim against the *model centre* -
+    the framing distance - while a driver's ``LOC_DIFF`` can only see the object
+    origin.  The two differ by however much of the model sits off the origin, so
+    the ratio is measured once here and baked into the expression as a constant;
+    it survives a camera move because both distances grow together while the
+    shot keeps the model in frame.  Returns 1.0 when the camera is at the origin
+    or the bounds are degenerate.
+    """
+    cam = bpy.context.scene.camera
+    if cam is None:
+        return 1.0
+    mw = np.array(obj.matrix_world)
+    local = np.array([tuple(c) + (1.0,) for c in obj.bound_box])
+    world = (local @ mw.T)[:, :3]
+    eye = np.array(cam.matrix_world.translation)
+    origin = np.array(obj.matrix_world.translation)
+    span = float(np.linalg.norm(origin - eye))
+    if span < 1e-6:
+        return 1.0
+    return float(np.linalg.norm(world.mean(axis=0) - eye)) / span
+
+
+def drive_outline(mod, obj, px):
+    """Hold the rim at `px` pixels of the rendered image, whatever the framing.
+
+    Solidify offsets by a world-space distance, so one fixed number cannot be
+    right for two framings at once - which is why an object-space value comes
+    out as a hairline in a full-body shot and a thick band in a close-up.  The
+    game's hull is ``0.0005 * |z_view|`` in screen space and therefore always
+    the same number of pixels, and ``blender_char.set_outline`` reproduces that
+    with ``width = px * dist * sensor / (lens * resolution_x)``, solved from
+    ``ndc = x*lens/(z*sensor/2)``.  The same expression drives the modifier
+    here, so it follows the camera instead of being baked for one of them.
+
+    ``dist`` is the camera-to-origin distance; `outline_depth_ratio` folds in
+    the bit of the model that sits off the origin, so the rim is measured where
+    the pipeline measures it.  The focal terms are read through the scene,
+    so lens, resolution and even the camera datablock can change freely; the
+    camera *object* is bound by hand, so switching to another one needs the
+    preset re-applied.
+    """
+    scene = bpy.context.scene
+    drv = mod.driver_add("thickness").driver
+    drv.type = "SCRIPTED"
+
+    dist = drv.variables.new()
+    dist.name = "dist"
+    dist.type = "LOC_DIFF"
+    dist.targets[0].id = obj
+    dist.targets[1].id = scene.camera
+
+    def prop(name, path):
+        var = drv.variables.new()
+        var.name = name
+        var.type = "SINGLE_PROP"
+        var.targets[0].id_type = "SCENE"
+        var.targets[0].id = scene
+        var.targets[0].data_path = path
+
+    prop("lens", "camera.data.lens")
+    prop("sensor", "camera.data.sensor_width")
+    prop("rx", "render.resolution_x")
+    prop("ry", "render.resolution_y")
+    # AUTO sensor fit puts `sensor_width` on the longer axis, so the slice of it
+    # spanning x shrinks in a portrait render - the `min` of set_outline
+    drv.expression = ("%g * %g * dist * sensor * min(1, rx / ry) / (lens * rx)"
+                      % (px, outline_depth_ratio(obj)))
+    return drv
+
+
+def add_outline(obj, sh, px):
     """Inverted hull as a Solidify shell on the same object, so that it follows
     the shape keys.  The shell's normals are flipped and its material is
-    back-face culled, which leaves only the outer rim past the depth test."""
+    back-face culled, which leaves only the outer rim past the depth test.
+
+    Returns None when the scene has no camera: `px` is only meaningful against
+    one, and the driver would evaluate to zero without it."""
+    if bpy.context.scene.camera is None:
+        return None
     out_mat = bpy.data.materials.new(obj.name + "_outline")
     if build_outline_shader(out_mat, sh) is None:
         bpy.data.materials.remove(out_mat)
         return None
     obj.data.materials.append(out_mat)
     mod = obj.modifiers.new("outline", "SOLIDIFY")
-    mod.thickness = thickness
+    drive_outline(mod, obj, px)
     mod.offset = 1.0
     mod.use_rim = False
     mod.use_even_offset = False
@@ -1060,7 +1138,8 @@ class EKGK_OT_render_preset(bpy.types.Operator):
                        if mat.name in built and props["tex"].get("_OutlineLUT")),
                       None)
             if sh is not None:
-                add_outline(obj, sh, float(scene.ek_outline))
+                if add_outline(obj, sh, float(scene.ek_outline)) is None:
+                    warn.append(tr("No camera in the scene - outline skipped"))
 
         try:
             scene.view_settings.view_transform = "Raw"
@@ -1082,11 +1161,13 @@ class EKGK_OT_render_preset(bpy.types.Operator):
 CLASSES = (EKGK_OT_render_preset,)
 
 
-#: Game ``_OutlineScale`` is 0.05 in model units, which at the 0.08 import scale
-#: is 0.004 - about a 2px rim at a normal framing.  Being a plain object-space
-#: Solidify thickness it does *not* hold a constant pixel width as the camera
-#: moves; the game's own hull is ``0.0005 * |z_view|``.
-DEFAULT_OUTLINE = 0.004
+#: The rim is a fixed number of *pixels*, not a fixed size: the game pushes its
+#: hull by ``0.0005 * |z_view|`` in screen space, so a close-up shows the same
+#: line as a full-body shot.  Solidify offsets in world space instead, so the
+#: control is the pixel count and drive_outline() solves the offset for the
+#: camera in use - a baked value is a hairline at one distance and a thick band
+#: at another.
+DEFAULT_OUTLINE = 1.2
 
 #: the names below are the msgids the panel looks up - the panel passes its own
 #: translated ``text``, so these stay in English and the label follows the
@@ -1095,8 +1176,9 @@ SCENE_PROPS = (
     ("ek_preset", "Enum", dict(name="Render Preset", items=preset_items)),
     ("ek_tex_dir", "String", dict(name="Texture Folder", subtype="DIR_PATH",
                                   default="")),
-    ("ek_outline", "Float", dict(name="Outline Thickness", default=DEFAULT_OUTLINE,
-                                 min=0.0, max=0.02, precision=4)),
+    ("ek_outline", "Float", dict(name="Outline Width (px)",
+                                 default=DEFAULT_OUTLINE,
+                                 min=0.0, max=8.0, precision=2)),
 )
 
 
@@ -1120,15 +1202,11 @@ def draw_panel(layout, context):
     box = layout.box()
     box.label(text=tr("Engage Kill Render Preset"), icon='SHADERFX')
     box.prop(context.scene, "ek_preset", text="")
-    row = box.row(align=True)
-    row.scale_y = 1.5
-    row.operator(EKGK_OT_render_preset.bl_idname,
+    box.operator(EKGK_OT_render_preset.bl_idname,
                  text=tr("One-Click Render Preset"), icon="PLAY")
-    box.row(align=True).label(text=tr("Toon shading + outline, in one click"),
-                              icon="INFO")
     row = box.row(align=True)
     row.prop(context.scene, "ek_tex_dir", text=tr("Texture Folder"))
-    row.prop(context.scene, "ek_outline", text=tr("Outline Thickness"))
+    row.prop(context.scene, "ek_outline", text=tr("Outline Width (px)"))
     if not (context.scene.ek_tex_dir or bpy.data.filepath):
         box.row(align=True).label(text=tr("Texture folder is auto-detected "
                                           "when left empty"), icon="QUESTION")
