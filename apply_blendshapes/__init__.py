@@ -2,8 +2,8 @@
 
 bl_info = {
     "name": "apply_blendshapes",
-    "author": "Bilibili 凡人就行",
-    "version": (1, 3, 1),
+    "author": "bilibili 凡人就行",
+    "version": (1, 4, 0),
     "blender": (3, 0, 0),
     "location": "Object > Apply BlendShapes From JSON",
     "description": "Apply Unity-style JSON blendshapes with multi-language support.",
@@ -24,6 +24,7 @@ from .apply_blendshapes import ApplyBlendshapes
 from .MMDCategorizeMorph import MMDCategorizeMorph
 from .MMDFacialMorphGroup import MMDFacialMorphGroup
 from .EngageKillToolsPanel import EngageKillToolsPanel
+from . import EngageKillPreset
 from .translation import translation_dict
 from .preferences import EngageKillAddonPreferences
 from . import addon_updater_ops
@@ -38,6 +39,7 @@ def register():
     bpy.utils.register_class(MMDCategorizeMorph)
     bpy.utils.register_class(MMDFacialMorphGroup)
     bpy.utils.register_class(EngageKillToolsPanel)
+    EngageKillPreset.register()
     bpy.app.translations.register(__name__, translation_dict)
     #bpy.types.VIEW3D_MT_object.append(menu_func)
 
@@ -50,6 +52,7 @@ def unregister():
     bpy.utils.unregister_class(MMDCategorizeMorph)
     bpy.utils.unregister_class(MMDFacialMorphGroup)
     bpy.utils.unregister_class(EngageKillToolsPanel)
+    EngageKillPreset.unregister()
     bpy.app.translations.unregister(__name__)
     #bpy.types.VIEW3D_MT_object.remove(menu_func)
 

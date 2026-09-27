@@ -1,8 +1,10 @@
 import bpy
 from bpy.types import Panel, Operator
 
+from . import EngageKillPreset
 
-# ✅ 工具栏面板
+
+# 工具栏面板
 class EngageKillToolsPanel(Panel):
     bl_label = bpy.app.translations.pgettext("Engage Kill Tools")
     bl_idname = "blendshape_tools"
@@ -18,3 +20,4 @@ class EngageKillToolsPanel(Panel):
         layout.operator("object.mmd_categorize_morph", icon='TOOL_SETTINGS', text=bpy.app.translations.pgettext("Automatically assign"))
         layout.label(text=bpy.app.translations.pgettext("Apply Facial Group From JSON"))
         layout.operator("object.mmd_facial_morph_group", icon='SHAPEKEY_DATA', text=bpy.app.translations.pgettext("Import"))
+        EngageKillPreset.draw_panel(layout, context)
