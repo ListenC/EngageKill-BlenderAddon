@@ -95,9 +95,11 @@ Notes for the PMX route
   own cache - ``hair_channels_<model>.npz``, located by vertex position
   (``bake_highlight_uv``).  A copy of that cache ships inside the addon, under
   ``cache/``, because the PMX being repaired is usually nowhere near this project.
-  Only if that is out of reach too does the sheen read ``HIGHLIGHT_MISSING`` (0,
-  *not* Unity's default white, which would push ``Lc`` to 1 and kill the whole
-  matcap/Mul machinery).
+  A hair that was *reshaped* by hand keeps its vertices in the order the dump
+  lists them while moving them, so the position match runs dry and the order is
+  read instead (``order_highlight_uv``); only when that is out of reach as well
+  does the sheen read ``HIGHLIGHT_MISSING`` (0, *not* Unity's default white, which
+  would push ``Lc`` to 1 and kill the whole matcap/Mul machinery).
 * A material with no main texture at all (``MatcapFaceNoOutline``, which only
   exists as a runtime-assigned face overlay) has no role and is skipped, as is
   anything whose mask or matcap is not on disk (``face_ef_*``).
@@ -629,6 +631,13 @@ MATCH_UV0_TOL = 1e-4
 MATCH_COVER = 0.9
 #: per-vertex pre-filter; 5 mm keeps the fine pass down to the hair's own loops
 MATCH_NEAR = 5e-3
+#: share of the dump that has to sit on its own *index* to a millimetre before a
+#: hair the position match could not reach is read off the order instead.  A
+#: reshaped hair keeps its untouched strands exactly where the dump lists them
+#: (chr_033_003's reshaped build: 908 of 3082, the median strand 14 mm off), and
+#: no other mesh lands a quarter of its vertices on another mesh's, in order, to
+#: a millimetre by accident.
+ORDER_COVER = 0.25
 
 STEM_RE = re.compile(r"(chr_\d+_\d+_\d+)")
 
@@ -821,8 +830,13 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
 
     found = np.unique(take[take >= 0])
     if len(found) < MATCH_COVER * len(src):
-        log("  uvhigh %-18s %s is not this hair (%d/%d verts matched), sheen "
-            "stays 0" % (obj.name, path, len(found), len(src)))
+        # the positions do not carry this mesh, but the *order* may: a hair that
+        # was reshaped in place keeps its vertices where the dump lists them
+        got = order_highlight_uv(obj, here, src, uv2)
+        if got is not None:
+            return got
+        log("  uvhigh %-18s %s is not this hair (%d/%d verts by position), "
+            "sheen stays 0" % (obj.name, path, len(found), len(src)))
         return None
     uv = np.zeros((loops, 2), dtype=np.float32)
     ok = take >= 0
@@ -833,6 +847,78 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
     # repeats all over the head instead of staying in its band.
     uv[ok, 1] = np.clip(uv2[take[ok], HIGHLIGHT_V_COMPONENT], 0.0, 1.0)
     return uv, "rebuilt from %s (%d/%d verts)" % (path, len(found), len(src))
+
+
+def hair_vertices(obj):
+    """The vertices of the object's hair material, in the mesh's own order.
+
+    ``hair_channels_<model>.npz`` is the bundle's ``mesh_hair``, so the block
+    of vertices it corresponds to is the one the hair material's faces name,
+    and its order is the PMX's vertex order - which is the order the dump was
+    written in, because an export of ours writes the bundle's hair mesh out as
+    one run.
+
+    Returns the mesh vertex indices as an int array, or None when the object
+    carries no plain hair material (or more than one, which would leave two
+    blocks claiming the same order).
+    """
+    me = obj.data
+    slots = []
+    for i, slot in enumerate(obj.material_slots):
+        main = main_texture_name(slot.material) if slot.material else None
+        if not main:
+            continue
+        stem = main[:-6] if main.endswith("_color") else main
+        if stem.endswith("_hair"):
+            slots.append(i)
+    if len(slots) != 1:
+        return None
+    used = set()
+    for poly in me.polygons:
+        if poly.material_index == slots[0]:
+            used.update(poly.vertices)
+    return np.array(sorted(used), dtype=np.int64) if used else None
+
+
+def order_highlight_uv(obj, here, src, uv2):
+    """The sheen uv read off the dump's vertex *order*, for a reshaped hair.
+
+    The position match is what makes the rebuild work on a mesh an exporter put
+    back together, but it needs the hair to still be *there*.  A model reshaped
+    by hand - chr_033_003's is 14 mm off at the median strand, its longest 110
+    mm - keeps only its untouched strands in place, so the match covers a third
+    of the dump and is thrown away, and the sheen then reads 0 while the hair
+    stays flat.  The vertex order survives that edit and the dump is written in
+    it, so the k-th hair vertex takes the k-th entry.
+
+    Believing the order unchecked would put another mesh's sheen onto this one,
+    so it has to show: ``ORDER_COVER`` of the dump sitting on its own index to a
+    millimetre.  A reshaped hair clears that on the strands it did not move, by
+    a wide margin (29% against the 25% asked); a mesh that merely shares the
+    vertex count cannot, because its vertices would have to coincide.
+
+    Returns ``(per-loop uv, note)``, or None.
+    """
+    used = hair_vertices(obj)
+    if used is None or len(used) != len(src):
+        log("  uvhigh %-18s no hair block to read the order off (%s verts vs "
+            "%d in the dump)"
+            % (obj.name, "none" if used is None else len(used), len(src)))
+        return None
+    inplace = int((np.linalg.norm(here[used] - src, axis=1) < MATCH_TOL).sum())
+    if inplace < ORDER_COVER * len(src):
+        log("  uvhigh %-18s order is not this hair (%d/%d verts on their own "
+            "index)" % (obj.name, inplace, len(src)))
+        return None
+    me = obj.data
+    vert = np.empty(len(me.loops), dtype=np.int32)
+    me.loops.foreach_get("vertex_index", vert)
+    k = np.searchsorted(used, vert)
+    hit = (k < len(used)) & (used[np.minimum(k, len(used) - 1)] == vert)
+    uv = np.zeros((len(me.loops), 2), dtype=np.float32)
+    uv[hit, 0] = uv2[k[hit], HIGHLIGHT_U_COMPONENT]
+    uv[hit, 1] = np.clip(uv2[k[hit], HIGHLIGHT_V_COMPONENT], 0.0, 1.0)
+    return uv, "order of %d/%d verts on their own index" % (inplace, len(src))
 
 
 def bake_highlight_uv(obj, stem=None, context=None, base_uv=None):
@@ -1136,6 +1222,48 @@ def has_texture(props, key, tex_root):
     return bool(name) and os.path.exists(os.path.join(tex_root, name + ".png"))
 
 
+#: A material the user faded out by hand - the blush and face-red overlays cut
+#: to alpha 0 so an expression can bring them in - is the one that must not get
+#: a hull.  The game's *own* transparent materials keep theirs: that variant is
+#: a shader which still draws the outline (and still names the same
+#: ``_OutlineLUT``), and nothing in the asset tells it apart from the opaque one
+#: anyway - `_Alpha`, `_SrcBlend`, `_DstBlend` and `_ZWrite` are the same on
+#: ``chr_033_001_01_hair`` and its ``_hair_trans`` sibling, while
+#: ``_TransparentFromTex`` is a mode enum that reads 3.0 on plain opaque hair.
+#: What is left is the opacity the PMX itself carries, which mmd_tools hands
+#: over as the material's alpha and which is 0 on exactly those overlays.
+def is_transparent(mat):
+    return float(mat.diffuse_color[3]) < 1.0
+
+
+def outline_source(planned, built, tex_root):
+    """The material that colours this object's hull, or why there is none.
+
+    The hull is one per object, so it takes its colour from the first material
+    that can really give it one, which means a ``_OutlineLUT`` that is a file in
+    the texture folder: `resolve_material` *derives* that name from the main
+    texture, so a material whose asset never shipped a ``*_color_out`` would
+    otherwise be given a shell coloured by a texture that is not there - and the
+    game draws no outline for it either.  A material the user faded out by hand
+    is passed over as well: its hull would be a solid rim around geometry that
+    is meant to fade out.
+
+    Returns ``(shader, "")`` when a hull can be built, otherwise ``(None, msgid)``
+    with the message to report.
+    """
+    transparent = False
+    for mat, props in planned:
+        if mat.name not in built:
+            continue
+        if is_transparent(mat):
+            transparent = True
+            continue
+        if has_texture(props, "_OutlineLUT", tex_root):
+            return built[mat.name], ""
+    return None, ("No outline on %s: the material is transparent" if transparent
+                  else "No outline on %s: no outline texture on disk")
+
+
 def material_ready(props, folder):
     """Does `folder` hold everything this material cannot be built without?"""
     return all(os.path.exists(os.path.join(folder, props["tex"][key] + ".png"))
@@ -1282,12 +1410,14 @@ class EKGK_OT_render_preset(bpy.types.Operator):
                 build_shader(mat, sh)
                 done += 1
             # the hull rides on the material set, one per object
-            sh = next((built[mat.name] for mat, props in plan[obj]
-                       if mat.name in built and props["tex"].get("_OutlineLUT")),
-                      None)
-            if sh is not None:
-                if add_outline(obj, sh, float(scene.ek_outline)) is None:
-                    warn.append(tr("No camera in the scene - outline skipped"))
+            sh, why = outline_source(plan[obj], built, tex_root)
+            if sh is None:
+                warn.append(tr(why) % obj.name)
+            elif bpy.context.scene.camera is None:
+                warn.append(tr("No camera in the scene - outline skipped"))
+            elif add_outline(obj, sh, float(scene.ek_outline)) is None:
+                warn.append(tr("%s cannot be outlined: its outline texture "
+                               "failed to load") % obj.name)
 
         try:
             scene.view_settings.view_transform = "Raw"
