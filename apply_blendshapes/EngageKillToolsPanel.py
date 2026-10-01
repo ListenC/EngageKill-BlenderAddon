@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Panel, Operator
 
 from . import EngageKillPreset
+from . import addon_updater_ops
 
 
 # 工具栏面板
@@ -21,3 +22,8 @@ class EngageKillToolsPanel(Panel):
         layout.label(text=bpy.app.translations.pgettext("Apply Facial Group From JSON"))
         layout.operator("object.mmd_facial_morph_group", icon='SHAPEKEY_DATA', text=bpy.app.translations.pgettext("Import"))
         EngageKillPreset.draw_panel(layout, context)
+        # the updater ships a demo panel of its own that used to carry
+        # these two calls; it is not registered here, and this panel is
+        # the one that gets opened, so the update check lives here now
+        addon_updater_ops.check_for_update_background()
+        addon_updater_ops.update_notice_box_ui(self, context)
