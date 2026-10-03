@@ -43,6 +43,7 @@ translation_dict = {
         ("*", "Failed to set the view transform: %s"): "Failed to set the view transform: %s",
         ("*", "Applied \"%s\": %d materials, %d skipped%s"): "Applied \"%s\": %d materials, %d skipped%s",
         ("*", "; %d notes in the console"): "; %d notes in the console",
+        ("*", "no presets/characters/%s.json - the generic role constants belong to another character, so the colours may not be this model's; generate one from the model's own material dump"): "no presets/characters/%s.json - the generic role constants belong to another character, so the colours may not be this model's; generate one from the model's own material dump",
     },
     "zh_CN": {
         ("*", "Apply BlendShapes From JSON"): "从JSON应用表情形态",
@@ -88,6 +89,7 @@ translation_dict = {
         ("*", "Failed to set the view transform: %s"): "view transform 设置失败：%s",
         ("*", "Applied \"%s\": %d materials, %d skipped%s"): "已套用「%s」：%d 个材质，跳过 %d 个%s",
         ("*", "; %d notes in the console"): "；%d 条提示见控制台",
+        ("*", "no presets/characters/%s.json - the generic role constants belong to another character, so the colours may not be this model's; generate one from the model's own material dump"): "没有 presets/characters/%s.json —— 通用角色常量来自别的角色，颜色可能不是这个模型的；请用该模型自己的材质 dump 生成一份",
     },
     "zh_TW": {
         ("*", "Apply BlendShapes From JSON"): "從JSON套用表情形態",
@@ -134,6 +136,7 @@ translation_dict = {
         ("*", "Failed to set the view transform: %s"): "view transform 設定失敗：%s",
         ("*", "Applied \"%s\": %d materials, %d skipped%s"): "已套用「%s」：%d 個材質，略過 %d 個%s",
         ("*", "; %d notes in the console"): "；%d 條提示請見主控台",
+        ("*", "no presets/characters/%s.json - the generic role constants belong to another character, so the colours may not be this model's; generate one from the model's own material dump"): "沒有 presets/characters/%s.json —— 通用角色常數來自別的角色，顏色可能不是這個模型的；請用該模型自己的材質 dump 生成一份",
     },
     "ja_JP": {
         ("*", "Apply BlendShapes From JSON"): "JSONからブレンドシェイプを適用",
@@ -179,6 +182,7 @@ translation_dict = {
         ("*", "Failed to set the view transform: %s"): "view transform の設定に失敗しました: %s",
         ("*", "Applied \"%s\": %d materials, %d skipped%s"): "「%s」を適用しました: %d マテリアル、%d スキップ%s",
         ("*", "; %d notes in the console"): "；%d 件の注意はコンソールを参照",
+        ("*", "no presets/characters/%s.json - the generic role constants belong to another character, so the colours may not be this model's; generate one from the model's own material dump"): "presets/characters/%s.json がありません —— 汎用ロールの定数は別キャラクターのもので、色がこのモデルのものでない可能性があります。このモデル自身のマテリアルダンプから生成してください",
     },
     "zh_Hans": {
         ("*", "Apply BlendShapes From JSON"): "从JSON应用表情形态",

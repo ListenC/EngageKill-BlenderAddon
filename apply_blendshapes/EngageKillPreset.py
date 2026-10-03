@@ -65,7 +65,7 @@ is one general preset and holds nothing character-specific:
 * the **matcap** likewise, one name per role: ``Slim2`` for cloth and skin,
   ``Slim1`` for hair and weapons.
 
-A ``presets/characters/<pmx stem>.json`` dump wins outright for whichever
+A ``presets/characters/<character>.json`` dump wins outright for whichever
 materials it names, for a character whose asset differs too much from the
 general preset.
 
@@ -768,7 +768,9 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
     and TEXCOORD2 per model, and a vertex is matched on position (agreeing to
     1e-7 m) with uv0 breaking ties between the soup's coincident vertices.  A
     scene that cannot be matched within a millimetre, or that holds less than
-    nine tenths of the dump, is not this character's hair and gets nothing.
+    nine tenths of the dump's *distinct* vertices - the repeats a hard edge
+    forces are collapsed first, the way `rebuild_vcol` does it - is not this
+    character's hair and gets nothing.
 
     Returns ``(per-loop uv, note)``, or None.
     """
@@ -785,6 +787,17 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
     except Exception as error:
         log("  uvhigh %-18s %s unusable: %s" % (obj.name, path, error))
         return None
+
+    # a bundle mesh repeats a vertex once per hard edge, so one (position,
+    # uv0) turns up several times - chr_032's hair holds 4800 entries but
+    # only 3581 distinct ones - while a PMX vertex carries a single sheen uv.
+    # Collapsing the repeats onto their first entry is what makes the
+    # coverage test below count against the vertices the dump really has:
+    # judged against the raw 4800 a faithful match reads as 75% and is thrown
+    # away, which is what silenced chr_032's sheen.  `order_highlight_uv`
+    # still takes the raw dump, because the order it reads is written in it.
+    keep = np.unique(np.hstack([src, suv0]), axis=0, return_index=True)[1]
+    msrc, msuv0, muv2 = src[keep], suv0[keep], uv2[keep]
 
     me = obj.data
     n = len(me.vertices)
@@ -815,38 +828,38 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
     near = np.full(n, np.inf)
     for s in range(0, n, 1024):
         e = min(n, s + 1024)
-        d = np.linalg.norm(here[s:e, None, :] - src[None, :, :], axis=2)
+        d = np.linalg.norm(here[s:e, None, :] - msrc[None, :, :], axis=2)
         near[s:e] = d.min(1)
     cand = np.flatnonzero((near < MATCH_NEAR)[vert])
     take = np.full(loops, -1, dtype=np.int32)
     for s in range(0, len(cand), 256):
         rows = cand[s:s + 256]
-        d = np.linalg.norm(here[vert[rows], None, :] - src[None, :, :], axis=2)
-        du = np.abs(luv[rows, None, :] - suv0[None, :, :]).sum(2)
+        d = np.linalg.norm(here[vert[rows], None, :] - msrc[None, :, :], axis=2)
+        du = np.abs(luv[rows, None, :] - msuv0[None, :, :]).sum(2)
         du[d >= MATCH_TOL] = np.inf
         k = du.argmin(1)
         hit = du[np.arange(len(rows)), k] < MATCH_UV0_TOL
         take[rows[hit]] = k[hit]
 
     found = np.unique(take[take >= 0])
-    if len(found) < MATCH_COVER * len(src):
+    if len(found) < MATCH_COVER * len(msrc):
         # the positions do not carry this mesh, but the *order* may: a hair that
         # was reshaped in place keeps its vertices where the dump lists them
         got = order_highlight_uv(obj, here, src, uv2)
         if got is not None:
             return got
         log("  uvhigh %-18s %s is not this hair (%d/%d verts by position), "
-            "sheen stays 0" % (obj.name, path, len(found), len(src)))
+            "sheen stays 0" % (obj.name, path, len(found), len(msrc)))
         return None
     uv = np.zeros((loops, 2), dtype=np.float32)
     ok = take >= 0
-    uv[ok, 0] = uv2[take[ok], HIGHLIGHT_U_COMPONENT]
+    uv[ok, 0] = muv2[take[ok], HIGHLIGHT_U_COMPONENT]
     # clamp exactly as the vertex shader does (line 79:
     # `vs_TEXCOORD3.y = clamp(vs_TEXCOORD3.y, 0.0, 1.0)`).  Left unclamped, v
     # swings to -0.24..2.94 and the single bright streak in the sheen texture
     # repeats all over the head instead of staying in its band.
-    uv[ok, 1] = np.clip(uv2[take[ok], HIGHLIGHT_V_COMPONENT], 0.0, 1.0)
-    return uv, "rebuilt from %s (%d/%d verts)" % (path, len(found), len(src))
+    uv[ok, 1] = np.clip(muv2[take[ok], HIGHLIGHT_V_COMPONENT], 0.0, 1.0)
+    return uv, "rebuilt from %s (%d/%d verts)" % (path, len(found), len(msrc))
 
 
 def hair_vertices(obj):
@@ -1104,19 +1117,29 @@ def load_preset(name):
 
 
 def load_override(meshes):
-    """An optional ``presets/characters/<pmx stem>.json`` override.
+    """An optional ``presets/characters/<character>.json`` override.
 
     mmd_tools names the root ``<pmx stem>``, the armature ``<pmx stem>_arm`` and
-    the mesh ``<pmx stem>_mesh``, so the PMX's own name is all that is needed.
+    the mesh ``<pmx stem>_mesh``, so the PMX's own name is the first
+    candidate.  It is not the only one: a file that has been through an
+    edit chain carries that chain in its name
+    (``chr_032_001_01_fbx_fixcz..._fixcz2.pmx``) while the dump the
+    preset was written from is keyed on the character alone, so the name
+    read off the materials wins as a fallback.  Without it the override is
+    missed and the generic role constants are used instead, which tints the
+    model with another character's colours.
     """
     if not os.path.isdir(CHARACTER_DIR):
         return None, None
     for obj in meshes:
-        stems = [obj.name]
+        names = [obj.name]
         for suffix in ("_mesh", "_arm"):
             if obj.name.endswith(suffix):
-                stems.append(obj.name[:-len(suffix)])
-        for stem in stems:
+                names.append(obj.name[:-len(suffix)])
+        character = model_stem(obj)
+        if character:
+            names.append(character)
+        for stem in names:
             path = os.path.join(CHARACTER_DIR, stem + ".json")
             if os.path.exists(path):
                 return stem, load_json(path)
@@ -1347,11 +1370,25 @@ class EKGK_OT_render_preset(bpy.types.Operator):
         for obj in meshes:
             drop_outline(obj)          # so a re-run does not plan its own hull
 
+        warn, skipped, plan, planned = [], [], {}, []
         character, override = load_override(meshes)
         if character:
             log("角色覆盖 presets/characters/%s.json" % character)
-
-        warn, skipped, plan, planned = [], [], {}, []
+        else:
+            # the generic roles are one character's numbers, so a model
+            # rendered off them comes out tinted rather than
+            # unlit-faulty.  Say so instead of letting it pass as "the
+            # preset ran".
+            stem = None
+            for obj in meshes:
+                stem = model_stem(obj)
+                if stem:
+                    break
+            warn.append(tr("no presets/characters/%s.json - the generic role "
+                           "constants belong to another character, so the "
+                           "colours may not be this model's; "
+                           "generate one from the model's own material dump")
+                        % (stem or "<model>"))
         for obj in meshes:
             plan[obj] = []
             for slot in obj.material_slots:

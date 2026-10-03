@@ -1,0 +1,1018 @@
+{
+ "materials": {
+  "chr_002_003_01_body": {
+   "colors": {
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_Matcap1AddColor": [
+     1.0,
+     0.8588235974311829,
+     0.760784387588501,
+     0.250980406999588
+    ],
+    "_Matcap1MulColor": [
+     1.0,
+     0.43529415130615234,
+     0.2862745225429535,
+     0.250980406999588
+    ],
+    "_Matcap2AddColor": [
+     0.5176470875740051,
+     0.5803921818733215,
+     0.7450980544090271,
+     0.250980406999588
+    ],
+    "_Matcap2MulColor": [
+     0.0678495466709137,
+     0.05490195378661156,
+     0.1882352977991104,
+     0.250980406999588
+    ],
+    "_OutlineColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_SubColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_TwoSidesBackColor": [
+     0.306799978017807,
+     0.47626665234565735,
+     0.5199999809265137,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexBColor": [
+     0.0,
+     0.0,
+     1.0,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_ApplyVertexR": 1.0,
+    "_BumpScale": 1.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DetailNormalMapScale": 1.0,
+    "_DstBlend": 0.0,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HighlightUV2": 0.0,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineSoftNormal": 0.0,
+    "_OutlineZBias": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_Sub": 0.0,
+    "_SubBlend": 0.0,
+    "_SubUV": 0.0,
+    "_TransparentFromTex": 0.0,
+    "_TwoSides": 2.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_VertexBColorToggle": 0.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaDissolveTex": null,
+    "_MainTex": "chr_002_003_01_body_color",
+    "_MaskTex": "chr_002_003_01_body_mask",
+    "_Matcap1Tex": "MatCap_Toon_Default_Slim2",
+    "_Matcap2Tex": "MatCap_Toon_Default_Slim2",
+    "_MatcapHighlightTex": null,
+    "_OutlineLUT": "chr_002_003_01_body_color_out",
+    "_SubTex": null,
+    "_UVScrollTex": null
+   }
+  },
+  "chr_002_003_01_face": {
+   "colors": {
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_Matcap1AddColor": [
+     1.0,
+     0.8588235974311829,
+     0.760784387588501,
+     0.250980406999588
+    ],
+    "_Matcap1MulColor": [
+     1.0,
+     0.43529415130615234,
+     0.2862745225429535,
+     0.250980406999588
+    ],
+    "_Matcap2AddColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Matcap2MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_OutlineColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_ApplyVertexR": 1.0,
+    "_BumpScale": 1.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DetailNormalMapScale": 1.0,
+    "_DstBlend": 0.0,
+    "_EyebrowsZShiftRate": 1.2000000476837158,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HairShadowIntensity": 0.6850000023841858,
+    "_HairShadowOffsetU": -0.004999999888241291,
+    "_HairShadowOffsetV": 0.009999999776482582,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineSoftNormal": 0.0,
+    "_OutlineZBias": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_TransparentFromTex": 0.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaDissolveTex": null,
+    "_MainTex": "chr_002_003_01_face_color",
+    "_MaskTex": "chr_002_003_01_face_mask",
+    "_Matcap1Tex": "MatCap_Toon_Default_Slim2",
+    "_Matcap2Tex": null,
+    "_OutlineLUT": "chr_002_003_01_face_color_out",
+    "_UVScrollTex": null
+   }
+  },
+  "chr_002_003_01_hair": {
+   "colors": {
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_Matcap1AddColor": [
+     0.3277856707572937,
+     0.41638314723968506,
+     0.5471698045730591,
+     0.25
+    ],
+    "_Matcap1MulColor": [
+     0.09121838957071304,
+     0.054823778569698334,
+     0.15094339847564697,
+     0.25
+    ],
+    "_Matcap2AddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.25
+    ],
+    "_Matcap2MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.25
+    ],
+    "_OutlineColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_SubColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_TwoSidesBackColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexBColor": [
+     0.760784387588501,
+     0.917647123336792,
+     0.9568628072738647,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_ApplyVertexR": 1.0,
+    "_BumpScale": 1.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DetailNormalMapScale": 1.0,
+    "_DstBlend": 0.0,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HighlightUV2": 0.0,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineSoftNormal": 1.0,
+    "_OutlineZBias": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_Sub": 0.0,
+    "_SubBlend": 0.0,
+    "_SubUV": 0.0,
+    "_TransparentFromTex": 0.0,
+    "_TwoSides": 0.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_VertexBColorToggle": 1.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaDissolveTex": null,
+    "_MainTex": "chr_002_003_01_hair_color",
+    "_MaskTex": "chr_002_003_01_hair_mask",
+    "_Matcap1Tex": "MatCap_Toon_Default_Slim1",
+    "_Matcap2Tex": "MatCap_Toon_Default_Slim1",
+    "_MatcapHighlightTex": "chr_002_003_01_hair_high",
+    "_OutlineLUT": "chr_002_001_01_hair_color_out",
+    "_SubTex": null,
+    "_UVScrollTex": null
+   }
+  },
+  "chr_002_003_01_hair_trans": {
+   "colors": {
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_Matcap1AddColor": [
+     0.3294117748737335,
+     0.4156862795352936,
+     0.5490196347236633,
+     0.25
+    ],
+    "_Matcap1MulColor": [
+     0.09019608050584793,
+     0.054901961237192154,
+     0.14901961386203766,
+     0.25
+    ],
+    "_Matcap2AddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.25
+    ],
+    "_Matcap2MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.25
+    ],
+    "_OutlineColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_SubColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_TwoSidesBackColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexBColor": [
+     0.6792452931404114,
+     0.46068310737609863,
+     0.45176219940185547,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_ApplyVertexR": 1.0,
+    "_BumpScale": 1.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DetailNormalMapScale": 1.0,
+    "_DstBlend": 0.0,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HighlightUV2": 0.0,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineSoftNormal": 1.0,
+    "_OutlineZBias": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_Sub": 0.0,
+    "_SubBlend": 0.0,
+    "_SubUV": 0.0,
+    "_TransparentFromBightness": 0.0,
+    "_TransparentFromTex": 0.0,
+    "_TransparentOutlineRate": 0.0,
+    "_TransparentRate": 0.0,
+    "_TransparentVertexRate": 0.5,
+    "_TwoSides": 0.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_VertexBColorToggle": 1.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaDissolveTex": null,
+    "_MainTex": "chr_002_003_01_hair_color",
+    "_MaskTex": "chr_002_003_01_hair_mask",
+    "_Matcap1Tex": "MatCap_Toon_Default_Slim1",
+    "_Matcap2Tex": "MatCap_Toon_Default_Slim1",
+    "_MatcapHighlightTex": "chr_002_003_01_hair_high",
+    "_OutlineLUT": "chr_002_001_01_hair_color_out",
+    "_SubTex": null,
+    "_UVScrollTex": null
+   }
+  },
+  "chr_002_003_01_sunvisor": {
+   "colors": {
+    "_AmbientLightColor": [
+     0.9019607901573181,
+     0.9019607901573181,
+     0.9019607901573181,
+     0.0
+    ],
+    "_Blink_Color": [
+     0.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_Color_BackColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_DepthContact_Color": [
+     0.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_Dissolve_EdgeColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "_Dissolve_Tex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Dissolve_Tex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Distortion_Prm": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_Distortion_StrengthTex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Distortion_StrengthTex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Distortion_Tex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Distortion_Tex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MainTex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_MainTex_ShiftPrm1": [
+     -0.10000000149011612,
+     0.0,
+     0.0,
+     0.10000000149011612
+    ],
+    "_MainTex_ShiftPrm2": [
+     0.10000000149011612,
+     0.0,
+     1.0,
+     1.0
+    ],
+    "_MainTex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.0
+    ],
+    "_Mask_Tex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Mask_Tex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Matcap1AddColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.250980406999588
+    ],
+    "_Matcap1MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.250980406999588
+    ],
+    "_Matcap2AddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.250980406999588
+    ],
+    "_Matcap2MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.250980406999588
+    ],
+    "_OutlineColor": [
+     0.5660377740859985,
+     0.23840907216072083,
+     0.14684943854808807,
+     0.47058823704719543
+    ],
+    "_OutlineParams": [
+     0.800000011920929,
+     0.10000000149011612,
+     1.0,
+     0.4000000059604645
+    ],
+    "_Ramp_Tex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_Ramp_Tex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_Rim_Color": [
+     1.0,
+     1.0,
+     0.0,
+     1.0
+    ],
+    "_SType_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_SubColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_SubTex_Color": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_SubTex_RndPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_SubTex_UVPrm": [
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "_TwoSidesBackColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexBColor": [
+     0.0,
+     0.0,
+     1.0,
+     1.0
+    ],
+    "_VertexWave_Axis": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexWave_Vector": [
+     1.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_Ambient": 2.0,
+    "_ApplyVertexR": 1.0,
+    "_BaseAlpha": 1.0,
+    "_Blink": 0.0,
+    "_Blink_Span": 0.10000000149011612,
+    "_BumpScale": 1.0,
+    "_Color_Back": 0.0,
+    "_Common_AlphaTest": 0.0,
+    "_Common_Fog": 0.0,
+    "_Common_IGNORE_DR2": 0.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DepthContact": 0.0,
+    "_DepthContact_Strength": 1.0,
+    "_DetailNormalMapScale": 1.0,
+    "_Dissolve_EnableAlpha": 0.0,
+    "_Dissolve_Screen": 0.0,
+    "_Dissolve_Soft": 0.0,
+    "_Distortion_Screen": 0.0,
+    "_Distortion_Sub": 0.0,
+    "_DstBlend": 0.0,
+    "_Effect_AlphaCut": 0.0,
+    "_EyebrowsZShiftRate": 1.2000000476837158,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HairShadowIntensity": 0.6850000023841858,
+    "_HairShadowOffsetU": -0.004999999888241291,
+    "_HairShadowOffsetV": 0.009999999776482582,
+    "_HighlightUV2": 0.0,
+    "_LambertOffset": 0.4000000059604645,
+    "_Main": 0.0,
+    "_MainTex_OpColor": 0.0,
+    "_MainTex_Screen": 0.0,
+    "_MainTex_Shift": 0.0,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Mask_Screen": 0.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineColorAdd": 0.0,
+    "_OutlineColorMul": 0.699999988079071,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineOffsetDevil": 0.05000000074505806,
+    "_OutlineOffsetTer": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineScaleDevil": 0.05000000074505806,
+    "_OutlineScaleTer": 0.05000000074505806,
+    "_OutlineSoftNormal": 0.0,
+    "_OutlineZBias": 0.0,
+    "_OutlineZBiasDevil": 0.0,
+    "_OutlineZBiasTer": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_PsRand_": 0.0,
+    "_Rim": 0.0,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_Rim_Range": 0.0,
+    "_Rim_Strength": 1.0,
+    "_SBlend_AlphaDstFactor": 10.0,
+    "_SBlend_AlphaSrcFactor": 0.0,
+    "_SBlend_ColorDstFactor": 10.0,
+    "_SBlend_ColorSrcFactor": 5.0,
+    "_SMode_Cull": 0.0,
+    "_SMode_ZTest": 4.0,
+    "_SMode_ZWrite": 0.0,
+    "_SType": 2.0,
+    "_SType_AddCoef": 1.0,
+    "_SType_MulCoef": 1.0,
+    "_ShadowIntensity": 1.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_Sub": 0.0,
+    "_SubBlend": 1.0,
+    "_SubTex_Add": 0.0,
+    "_SubTex_Screen": 0.0,
+    "_SubUV": 0.0,
+    "_ToonShadeMask": 0.3499999940395355,
+    "_TransparentFromBightness": 0.0,
+    "_TransparentFromTex": 3.0,
+    "_TransparentOutlineRate": 0.0,
+    "_TransparentRate": 0.0,
+    "_TransparentVertexRate": 0.0,
+    "_TwoSides": 0.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_VertexBColorToggle": 0.0,
+    "_VertexWave_": 0.0,
+    "_Vertex_XYScale": 0.0,
+    "_Vertex_XYShift": 0.0,
+    "_Vertex_ZShift": 0.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaTex": "chr_002_003_01_body_mask",
+    "_Dissolve_Tex": null,
+    "_Distortion_StrengthTex": null,
+    "_Distortion_Tex": null,
+    "_MainTex": "chr_002_003_01_body_color",
+    "_MainTex_Matcap": null,
+    "_Mask_Tex": null,
+    "_Ramp_Tex": null,
+    "_SubTex": null
+   }
+  },
+  "wep_002_003_01": {
+   "colors": {
+    "_Color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_EmissionColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_MaskBAddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_Matcap1AddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.25
+    ],
+    "_Matcap1MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.25
+    ],
+    "_Matcap2AddColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.25
+    ],
+    "_Matcap2MulColor": [
+     0.0,
+     0.0,
+     0.0,
+     0.25
+    ],
+    "_OutlineColor": [
+     0.33018869161605835,
+     0.33018869161605835,
+     0.33018869161605835,
+     1.0
+    ],
+    "_RimColor": [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    "_SubColor": [
+     1.0,
+     1.0,
+     1.0,
+     0.5
+    ],
+    "_TwoSidesBackColor": [
+     0.5,
+     0.5,
+     0.5,
+     1.0
+    ],
+    "_UVScrollColor": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "_VertexBColor": [
+     0.0,
+     0.0,
+     1.0,
+     1.0
+    ]
+   },
+   "floats": {
+    "_Alpha": 1.0,
+    "_AlphaDissolve": 0.0,
+    "_ApplyVertexR": 1.0,
+    "_BumpScale": 1.0,
+    "_Cutoff": 0.5,
+    "_Debug": 0.0,
+    "_DetailNormalMapScale": 1.0,
+    "_DstBlend": 0.0,
+    "_GlossMapScale": 1.0,
+    "_Glossiness": 0.5,
+    "_GlossyReflections": 1.0,
+    "_HighlightUV2": 0.0,
+    "_Main_Cull": 2.0,
+    "_MaskGAddCoef": 1.0,
+    "_MaskGMulCoef": 1.0,
+    "_Metallic": 0.0,
+    "_Mode": 0.0,
+    "_OcclusionStrength": 1.0,
+    "_Outline": 0.0,
+    "_OutlineOffset": 0.10000000149011612,
+    "_OutlineScale": 0.05000000074505806,
+    "_OutlineSoftNormal": 1.0,
+    "_OutlineZBias": 0.0,
+    "_Outline_Cull": 1.0,
+    "_Parallax": 0.019999999552965164,
+    "_RimOffset": 0.0,
+    "_RimScale": 0.0,
+    "_SmoothnessTextureChannel": 0.0,
+    "_SpecularHighlights": 1.0,
+    "_SrcBlend": 1.0,
+    "_Sub": 0.0,
+    "_SubBlend": 0.0,
+    "_SubUV": 0.0,
+    "_TransparentFromTex": 0.0,
+    "_TwoSides": 0.0,
+    "_UVScroll": 0.0,
+    "_UVSec": 0.0,
+    "_VertexBColorToggle": 0.0,
+    "_ZWrite": 1.0
+   },
+   "tex": {
+    "_AlphaDissolveTex": null,
+    "_MainTex": "wep_002_003_01_color",
+    "_MaskTex": "wep_002_003_01_mask",
+    "_Matcap1Tex": "MatCap_Toon_Default_Slim2",
+    "_Matcap2Tex": "MatCap_Toon_Default_Slim2",
+    "_MatcapHighlightTex": null,
+    "_OutlineLUT": "wep_002_003_01_color_out",
+    "_SubTex": null,
+    "_UVScrollTex": null
+   }
+  }
+ }
+}
