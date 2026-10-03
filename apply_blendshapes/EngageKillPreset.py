@@ -83,6 +83,13 @@ Notes for the PMX route
   matched on by vertex position in ``rebuild_vcol``, which parks it in a
   ``VColSrc`` byte-colour layer that ``bake_vcol`` then freezes.  A mesh the
   bundle leaves colourless keeps the default white, as before.
+* our own pipeline bakes its A-pose correction into a model's *rest* pose before
+  anything else is built, while both dumps were taken from a T-posed FBX export -
+  so before either is matched the mesh's vertices are turned back to that T-pose
+  (``unpose_here``, from the same six VPD rotations the bake used).  A model that
+  rests in the A-pose - every model this addon exists to render - would otherwise
+  lose the colour and the sheen of its shoulders, arms and anything hanging off
+  them, because a position match cannot follow a 36 degree turn.
 * The hair highlight reads ``TEXCOORD2``.  A PMX that still carries that channel
   parks it in ``addUV[0]``, which mmd_tools brings in as ``UV1`` through the same
   ``flipUV_V`` it uses for the base uv - so ``UV1`` already holds the game's
@@ -639,6 +646,28 @@ MATCH_NEAR = 5e-3
 #: a millimetre by accident.
 ORDER_COVER = 0.25
 
+#: The A-pose that our own PMX pipeline bakes into every model's *rest* pose -
+#: the six VPD rotations of ``mmd/木更姿势修正.vpd``, copied here from
+#: ``pmx_kit/data/pose_apose.json``.  It turns only the shoulders and the upper
+#: arms down, about 36 degrees at the wrist (the arm tip reaches 6.9076 where a
+#: T-posed one reaches 8.4299).  The dumps are taken from a T-posed FBX export,
+#: so a model that rests in this pose has to be turned *back* before its vertices
+#: can be matched - that is what `unpose_here` does.  Values are ``(x, y, z, w)``
+#: and the keys are the names a VPD writes; ``unpose_here`` finds the bone by
+#: asking mmd_tools for ``mmd_bone.name_j``, because an import renames these to
+#: Blender form (``肩.L``) and the file name is not what the VPD called it.
+APOSE_BONES = {
+    "\u5de6\u80a9": (0.01742, 0.001065, -0.026173, 0.999505),
+    "\u5de6\u8155": (0.000502, -0.001437, -0.28817, 0.957578),
+    "\u5de6\u3072\u3058": (0.0, 0.0, -0.017448, 0.999848),
+    "\u53f3\u80a9": (0.01742, -0.001065, 0.026173, 0.999505),
+    "\u53f3\u8155": (0.000502, 0.001437, 0.28817, 0.957578),
+    "\u53f3\u3072\u3058": (0.0, 0.0, 0.017448, 0.999848),
+}
+#: the most a PMX vertex may be skinned to (mmd_tools keeps every weight, so a
+#: model exported from Blender can carry more than four)
+MAX_INFLUENCE = 8
+
 STEM_RE = re.compile(r"(chr_\d+_\d+_\d+)")
 
 
@@ -750,6 +779,176 @@ def pmx_highlight_uv(obj):
     return uv, "addUV (%.2f jump per face)" % jump
 
 
+def _quat_matrix(quat):
+    """The 3x3 rotation of a quaternion, as three rows (`pmxkit/apose.py`)."""
+    x, y, z, w = quat
+    xx, yy, zz = x * x, y * y, z * z
+    xy, xz, yz = x * y, x * z, y * z
+    wx, wy, wz = w * x, w * y, w * z
+    return np.array([
+        [1.0 - 2.0 * (yy + zz), 2.0 * (xy - wz), 2.0 * (xz + wy)],
+        [2.0 * (xy + wz), 1.0 - 2.0 * (xx + zz), 2.0 * (yz - wx)],
+        [2.0 * (xz - wy), 2.0 * (yz + wx), 1.0 - 2.0 * (xx + yy)],
+    ])
+
+
+def _apose_quat(name):
+    """The A-pose quaternion one bone carries, by any name it is known under.
+
+    A VPD writes the MMD name (``\\u5de6\\u80a9``), an import renames it to Blender
+    form (``\\u80a9.L``) and a model built the Blender way carries that form in the
+    file, so both spellings are accepted.
+    """
+    hit = APOSE_BONES.get(name)
+    if hit is None and len(name) > 2 and name[-2:] in (".L", ".R"):
+        side = "\u5de6" if name[-1] == "L" else "\u53f3"
+        hit = APOSE_BONES.get(side + name[:-2])
+    return hit
+
+
+def _bone_order(parents):
+    """Bone indices, parents first, so the pose walk needs one forward pass."""
+    count = len(parents)
+    children = [[] for _ in range(count)]
+    roots = []
+    for index, parent in enumerate(parents):
+        if 0 <= parent < count and parent != index:
+            children[parent].append(index)
+        else:
+            roots.append(index)
+    order = []
+    stack = list(reversed(roots))
+    while stack:
+        index = stack.pop()
+        order.append(index)
+        stack.extend(reversed(children[index]))
+    return order
+
+
+def unpose_here(obj, here):
+    """Turn an A-posed model's vertices back to the dump's T-pose.
+
+    Our PMX pipeline bakes the A-pose correction into the model's *rest* pose
+    before any physics is built (`pmx_kit/tools/apply_apose.py`), so a finished
+    model rests with its arms turned down about 36 degrees - and the dumps
+    ``rebuild_vcol`` and ``rebuild_highlight_uv`` match against were taken from a
+    *T-posed* FBX export.  A position match therefore rejects the arms of exactly
+    the models this addon is meant to serve: chr_108's A-posed build reaches x
+    0.5944 where its own dump reaches 0.7252, so 2248 entries come back
+    unreachable, coverage reads 82% and the colour stays white.
+
+    The pose is recoverable because MMD applies a VPD as a *model-space* rotation
+    (the quaternion is not folded through the bone's own axes - see the docstring
+    of `pmxkit/apose.py`), so the walk that module replays forwards can be run
+    backwards from the same six quaternions:
+
+        rotation(b) = rotation(parent) * R(q_b)
+        pos_T(b)    = pos_T(parent) + rotation(parent)^T * (pos_A(b) - pos_A(parent))
+
+    Vertices follow their bones through the same affine map, ``M = sum(w_i *
+    rotation(i))`` and ``t = sum(w_i * (pos_A(i) - rotation(i) * pos_T(i)))``, so
+    the T-posed mesh comes back as ``M^-1 * (pos_A - t)``.
+
+    All of it stays in the frame ``here`` is written in - mmd_tools maps a PMX in
+    as ``0.08 * (px, pz, py)``, so ``here`` is ``(-x, z, -y)`` of that, i.e.
+    ``0.08`` times a sign flip of the model's own axes.  A rotation is carried
+    across by conjugating it with ``(-1, 1, -1)``, which is why `_quat_matrix`'s
+    output is multiplied by that sign pattern rather than pushed through any bone
+    frame (a bone's own roll plays no part in this pose).
+
+    Returns `here` itself when the object is not skinned to an armature that
+    carries even one of the six bones, so a weapon, or a mesh this pipeline never
+    posed, is left exactly as it was.
+    """
+    armature = None
+    for modifier in obj.modifiers:
+        if modifier.type == "ARMATURE" and modifier.object:
+            armature = modifier.object
+            break
+    if armature is None or armature.type != "ARMATURE":
+        return here
+    bones = armature.data.bones
+    count = len(bones)
+    me = obj.data
+    n = len(me.vertices)
+    if not count or not n:
+        return here
+
+    # the pose, in each bone's own model space; mmd_tools renames these bones, so
+    # the name a VPD wrote is asked for rather than read off the bone
+    at = {bone.name: index for index, bone in enumerate(bones)}
+    local = [None] * count
+    for pose_bone in armature.pose.bones:
+        mmd = getattr(pose_bone, "mmd_bone", None)
+        name_j = getattr(mmd, "name_j", None) if mmd is not None else None
+        quat = _apose_quat(name_j or pose_bone.get("mmd_bone_name_j")
+                           or pose_bone.get("name_j") or pose_bone.name)
+        index = at.get(pose_bone.name)
+        if quat is not None and index is not None:
+            local[index] = quat
+    if not any(local):
+        return here
+
+    # the resting bone table, in the frame the mesh is read in.  A bone's
+    # `head_local` lives in the space the armature modifier treats as shared with
+    # the mesh, which is why the mesh's own matrix is what carries it out
+    parents = [at.get(bone.parent.name, -1) if bone.parent else -1
+               for bone in bones]
+    matrix = np.asarray(obj.matrix_world, dtype=np.float64)
+    rest = np.empty((count, 3), dtype=np.float64)
+    for index, bone in enumerate(bones):
+        world = matrix[:3, :3] @ np.asarray(bone.head_local) + matrix[:3, 3]
+        rest[index] = (-world[0], world[2], -world[1])
+
+    flip = np.array([-1.0, 1.0, -1.0])
+    turn = np.empty((count, 3, 3), dtype=np.float64)
+    lifted = rest.copy()                 # pos_T, the table being recovered
+    for index in _bone_order(parents):
+        parent = parents[index]
+        step = None
+        if local[index] is not None:
+            step = _quat_matrix(local[index])
+            step = step * flip[:, None] * flip[None, :]
+        if parent < 0:
+            turn[index] = np.eye(3) if step is None else step
+            continue
+        turn[index] = turn[parent] if step is None else turn[parent] @ step
+        lifted[index] = (lifted[parent]
+                         + turn[parent].T @ (rest[index] - rest[parent]))
+
+    group_bone = np.array([at.get(group.name, -1)
+                           for group in obj.vertex_groups], dtype=np.int64)
+    if not len(group_bone):
+        return here
+    slot = np.full((n, MAX_INFLUENCE), -1, dtype=np.int64)
+    weight = np.zeros((n, MAX_INFLUENCE), dtype=np.float64)
+    for vertex in me.vertices:
+        for k, group in enumerate(vertex.groups):
+            if k >= MAX_INFLUENCE:
+                break
+            slot[vertex.index, k] = group.group
+            weight[vertex.index, k] = group.weight
+    bone = np.where(slot >= 0,
+                    group_bone[np.clip(slot, 0, len(group_bone) - 1)], -1)
+    live = (bone >= 0) & (weight > 0.0)
+    weight = np.where(live, weight, 0.0)   # a dead slot must not pull
+    bone = np.where(live, bone, 0)
+
+    spun = np.einsum("kij,kj->ki", turn, lifted)          # rotation(i) * pos_T(i)
+    skin = np.einsum("nk,nkij->nij", weight, turn[bone])
+    offset = np.einsum("nk,nkj->nj", weight, rest[bone] - spun[bone])
+    out = here.copy()
+    fit = np.flatnonzero(weight.sum(1) > 1e-8)
+    if len(fit):
+        block = skin[fit]
+        good = np.abs(np.linalg.det(block)) > 1e-9
+        rows = fit[good]
+        if len(rows):
+            out[rows] = np.einsum("nij,nj->ni", np.linalg.inv(block[good]),
+                                  here[rows] - offset[rows])
+    return out
+
+
 def rebuild_highlight_uv(obj, stem, context, base_uv):
     """Put the real sheen uv back on the mesh, out of the bundle's cached channel.
 
@@ -811,6 +1010,9 @@ def rebuild_highlight_uv(obj, stem, context, base_uv):
     # mmd_tools maps MMD's left-handed y-up onto Blender's z-up, so the bundle's
     # own axes come back out as (-x, z, -y) - measured in src/_p5.py
     here = np.stack([-world[:, 0], world[:, 2], -world[:, 1]], 1)
+    # a finished model rests in the pipeline's A-pose while this dump was taken
+    # from a T-posed export, so the arms come back up before anything is matched
+    here = unpose_here(obj, here)
 
     layer = me.uv_layers.get(base_uv)
     if layer is None:
@@ -979,11 +1181,19 @@ def rebuild_vcol(obj, stem, context, base_uv):
     ``src/uv3_extract.py`` dumps every mesh of the bundle whose colour is not
     plain white, and the values are matched onto the PMX the same way the sheen
     uv is: by *where a vertex is*, to a millimetre under ``bundle = (-x, z, -y)``,
-    with uv0 breaking the tie between vertices that sit on top of each other.  A
-    bundle mesh repeats a vertex once per hard edge and a PMX vertex holds one
-    colour, so those repeats are collapsed onto their first entry before the
-    match.  A mesh the bundle leaves colourless has no entry, so its vertices
-    find nothing and stay white - which is what the game draws them as.
+    with uv0 breaking the tie between vertices that sit on top of each other.  The
+    mesh is turned back to the T-pose the dump was taken in first (`unpose_here`),
+    because the pipeline bakes its A-pose into a model's rest pose.  A bundle mesh
+    repeats a vertex once per hard edge and a PMX vertex holds one colour, so
+    those repeats are collapsed onto their first entry before the match.  A mesh
+    the bundle leaves colourless has no entry, so its vertices find nothing and
+    stay white - which is what the game draws them as.
+
+    The match has to cover the dump's *coloured* entries before it is believed,
+    because those are the only ones a vertex could take anything from: an entry
+    that is plain white paints white whether it is matched or not, and a model
+    edited by hand moves geometry the dump cannot follow while leaving those
+    entries white (chr_032's feet, 904 of them).
 
     The attribute is BYTE_COLOR on purpose.  ``bake_vcol`` reads ``color_srgb``,
     which for a byte colour is the stored byte over 255 - the raw numbers Unity
@@ -1040,6 +1250,9 @@ def rebuild_vcol(obj, stem, context, base_uv):
     # mmd_tools maps MMD's left-handed y-up onto Blender's z-up, so the bundle's
     # own axes come back out as (-x, z, -y) - measured in src/_p5.py
     here = np.stack([-world[:, 0], world[:, 2], -world[:, 1]], 1)
+    # a finished model rests in the pipeline's A-pose while this dump was taken
+    # from a T-posed export, so the arms come back up before anything is matched
+    here = unpose_here(obj, here)
 
     luv = np.empty(loops * 2, dtype=np.float32)
     layer.data.foreach_get("uv", luv)
@@ -1071,9 +1284,18 @@ def rebuild_vcol(obj, stem, context, base_uv):
         take[rows[hit]] = k[hit]
 
     found = np.unique(take[take >= 0])
-    if len(found) < MATCH_COVER * len(src):
-        log("  vcol  %-18s %s is not this model (%d/%d verts matched), colour "
-            "stays white" % (obj.name, path, len(found), len(src)))
+    # an entry whose colour is plain white carries nothing a mesh could take -
+    # `uv3_extract` skips wholly white *meshes* for the same reason - so coverage
+    # is read against the entries that do hold a colour.  A model reshaped by hand
+    # moves geometry the dump cannot follow (chr_032's feet and shoes sit 17 cm
+    # off, 904 entries) and every one of those entries is white: judged against
+    # all of them a faithful match reads 89.5% and the mesh is thrown away, while
+    # against the coloured ones it is complete.
+    painted = np.flatnonzero((col[:, :3] < 255).any(1))
+    painted_hit = len(np.intersect1d(found, painted))
+    if painted_hit < MATCH_COVER * len(painted):
+        log("  vcol  %-18s %s is not this model (%d/%d coloured verts matched), "
+            "colour stays white" % (obj.name, path, painted_hit, len(painted)))
         return False
 
     raw = np.ones((n, 4), dtype=np.float32)
